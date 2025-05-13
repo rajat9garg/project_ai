@@ -7,5 +7,6 @@ import org.springframework.boot.runApplication
 class ElasticSearchApplication
 
 fun main(args: Array<String>) {
+    // This is the main function that starts the Spring Boot application
     runApplication<ElasticSearchApplication>(*args)
 } 
