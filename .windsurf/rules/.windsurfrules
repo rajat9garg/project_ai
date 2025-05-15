@@ -1,8 +1,4 @@
----
-description: 
-globs: 
-alwaysApply: true
----
+
 You are an expert in Kotlin programming, Spring Boot, Spring Framework, Gradle, jOOQ, and related JVM technologies.
 
 Code Style and Structure
