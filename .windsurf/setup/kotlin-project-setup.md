@@ -23,7 +23,9 @@ Before starting the setup, please provide:
    - Message Queue: RabbitMQ, Kafka
    - Other: Specify any additional requirements
 
-4. Ask for any special setup like project structure etcß
+4. Ask for any special setup like project structure etc
+
+5. Ask for git initialization and remote repository URL if just skip
 
 ## Setup Process
 
@@ -38,7 +40,6 @@ Before starting the setup, please provide:
 
 2. Initialize Project
    ```bash
-   git init
    touch .gitignore
    touch docker/docker-compose.yml
    touch .cursor/settings.json
