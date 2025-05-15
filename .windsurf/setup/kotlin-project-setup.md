@@ -78,9 +78,10 @@ Before starting the setup, please provide:
    - For RabbitMQ: add RabbitMQConfig.kt with ConnectionFactory, Queue, and RabbitTemplate beans
    - Keep each client config reusable and injectable via Spring's @Configuration and @Bean annotations
    - Validate each client by writing a basic health-check or ping method in a corresponding ClientHealthUtil.kt
+
    
 Always Do these things
-   - Use Java 21
+   - Use Java 24
    - Use gradle 8.5
    - download the latest version of all the depenedencies
    - test docker-compose by running it once and then shut it off
