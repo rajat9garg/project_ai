@@ -87,6 +87,7 @@ Always Do these things
    - download the latest version of all the depenedencies
    - test docker-compose by running it once and then shut it off
    - ensure docker-compose up brings up all services including Spring Boot application
+   - use objectMapper
 
 
 ## Notes
