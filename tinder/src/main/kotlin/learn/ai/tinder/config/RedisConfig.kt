@@ -1,60 +1,62 @@
 package learn.ai.tinder.config
 
-import org.springframework.beans.factory.annotation.Value
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotBlank
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration
-import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory
-import org.springframework.data.redis.core.ReactiveRedisTemplate
-import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer
-import org.springframework.data.redis.serializer.RedisSerializationContext
+import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer
 import org.springframework.data.redis.serializer.StringRedisSerializer
-import java.time.Duration
+import org.springframework.validation.annotation.Validated
 
-/**
- * Configuration for Redis connection and operations.
- * Sets up reactive Redis templates for working with Redis.
- */
 @Configuration
+@EnableConfigurationProperties(RedisConfig.RedisConnectionProperties::class)
 class RedisConfig(
-    @Value("\${spring.data.redis.host}") private val redisHost: String,
-    @Value("\${spring.data.redis.port}") private val redisPort: Int,
-    @Value("\${spring.data.redis.database}") private val redisDatabase: Int
+    private val properties: RedisConfig.RedisConnectionProperties
 ) {
-
-    /**
-     * Creates a reactive Redis connection factory using Lettuce.
-     */
+    
     @Bean
-    fun reactiveRedisConnectionFactory(): ReactiveRedisConnectionFactory {
-        val config = RedisStandaloneConfiguration(redisHost, redisPort)
-        config.database = redisDatabase
-        
-        val clientConfig = LettuceClientConfiguration.builder()
-            .commandTimeout(Duration.ofSeconds(5))
-            .build()
-            
-        return LettuceConnectionFactory(config, clientConfig)
-    }
+    fun redisConnectionFactory(): LettuceConnectionFactory =
+        RedisStandaloneConfiguration()
+            .apply {
+                hostName = properties.host
+                port = properties.port
+                database = properties.database
+            }
+            .let(::LettuceConnectionFactory)
+            .apply {
+                afterPropertiesSet()
+            }
 
-    /**
-     * Creates a generic reactive Redis template for String keys and any value type.
-     */
     @Bean
-    fun <T : Any> reactiveRedisTemplate(
-        connectionFactory: ReactiveRedisConnectionFactory,
-        valueClass: Class<T>
-    ): ReactiveRedisTemplate<String, T> {
-        val keySerializer = StringRedisSerializer()
-        val valueSerializer = Jackson2JsonRedisSerializer<T>(valueClass)
+    fun redisTemplate(): RedisTemplate<String, Any> =
+        RedisTemplate<String, Any>().apply {
+            connectionFactory = redisConnectionFactory()
+            keySerializer = StringRedisSerializer()
+            valueSerializer = GenericJackson2JsonRedisSerializer()
+            hashKeySerializer = StringRedisSerializer()
+            hashValueSerializer = GenericJackson2JsonRedisSerializer()
+            afterPropertiesSet()
+        }
+
+    @ConfigurationProperties(prefix = "spring.data.redis")
+    @Validated
+    data class RedisConnectionProperties(
+        @field:NotBlank
+        val host: String = "localhost",
         
-        val serializationContext = RedisSerializationContext
-            .newSerializationContext<String, T>(keySerializer)
-            .value(valueSerializer)
-            .build()
-            
-        return ReactiveRedisTemplate(connectionFactory, serializationContext)
-    }
+        @field:Min(1)
+        @field:Max(65535)
+        val port: Int = 6379,
+        
+        @field:Min(0)
+        val database: Int = 0,
+        
+        val timeout: String = "5000ms"
+    )
 }

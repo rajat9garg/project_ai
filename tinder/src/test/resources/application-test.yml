@@ -1,0 +1,15 @@
+spring:
+  cassandra:
+    # These will be overridden by TestContainers
+    contact-points: localhost
+    port: 9042
+    local-datacenter: datacenter1
+    keyspace-name: tinder_test
+    schema-action: CREATE_IF_NOT_EXISTS
+    connection:
+      connect-timeout: 20s
+      init-query-timeout: 20s
+
+  test:
+    cassandra:
+      # Additional test-specific Cassandra settings can go here

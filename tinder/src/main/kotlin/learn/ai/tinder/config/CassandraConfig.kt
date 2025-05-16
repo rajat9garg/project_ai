@@ -1,45 +1,48 @@
 package learn.ai.tinder.config
 
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.data.cassandra.config.AbstractReactiveCassandraConfiguration
+import org.springframework.data.cassandra.config.AbstractCassandraConfiguration
+import org.springframework.data.cassandra.config.CqlSessionFactoryBean
 import org.springframework.data.cassandra.config.SchemaAction
 import org.springframework.data.cassandra.core.cql.keyspace.CreateKeyspaceSpecification
-import org.springframework.data.cassandra.repository.config.EnableReactiveCassandraRepositories
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.cassandra.core.cql.keyspace.KeyspaceOption
+import org.springframework.data.cassandra.repository.config.EnableCassandraRepositories
 
-/**
- * Configuration for Cassandra connection and repositories.
- * Extends AbstractReactiveCassandraConfiguration to provide reactive Cassandra support.
- */
-@Configuration
-@EnableReactiveCassandraRepositories(basePackages = ["learn.ai.tinder.repository"])
+@Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(CassandraProperties::class)
+@EnableCassandraRepositories(basePackages = ["learn.ai.tinder.repository.cassandra"])
 class CassandraConfig(
-    @Value("\${spring.data.cassandra.keyspace-name}") private val keyspaceName: String,
-    @Value("\${spring.data.cassandra.contact-points}") private val contactPoints: String,
-    @Value("\${spring.data.cassandra.port}") private val port: Int,
-    @Value("\${spring.data.cassandra.local-datacenter}") private val localDatacenter: String,
-    @Value("\${spring.data.cassandra.schema-action}") private val schemaAction: String
-) : AbstractReactiveCassandraConfiguration() {
+    private val properties: CassandraProperties
+) : AbstractCassandraConfiguration() {
 
-    override fun getKeyspaceName(): String = keyspaceName
+    override fun getKeyspaceName(): String = properties.keyspaceName
+    override fun getContactPoints(): String = properties.contactPoints
+    override fun getLocalDataCenter(): String = properties.localDatacenter
+    override fun getPort(): Int = properties.port
+    override fun getSchemaAction(): SchemaAction = SchemaAction.CREATE_IF_NOT_EXISTS
 
-    override fun getContactPoints(): String = contactPoints
+    override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> = listOf(
+        CreateKeyspaceSpecification.createKeyspace(properties.keyspaceName)
+            .ifNotExists()
+            .with(KeyspaceOption.DURABLE_WRITES, true)
+            .withSimpleReplication(1)
+    )
 
-    override fun getPort(): Int = port
-
-    override fun getLocalDataCenter(): String = localDatacenter
-
-    override fun getSchemaAction(): SchemaAction = SchemaAction.valueOf(schemaAction)
-
-    /**
-     * Creates the keyspace if it doesn't exist.
-     */
-    override fun getKeyspaceCreations(): List<CreateKeyspaceSpecification> {
-        return listOf(
-            CreateKeyspaceSpecification
-                .createKeyspace(keyspaceName)
-                .ifNotExists()
-                .withSimpleReplication(1)
-        )
+    @Bean
+    override fun cassandraSession(): CqlSessionFactoryBean {
+        return super.cassandraSession().apply {
+            // Any additional session configuration can go here
+        }
     }
 }
+
+@ConfigurationProperties(prefix = "spring.cassandra")
+data class CassandraProperties(
+    val keyspaceName: String = "tinder",
+    val contactPoints: String = "localhost",
+    val localDatacenter: String = "datacenter1",
+    val port: Int = 9042
+)

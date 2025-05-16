@@ -1,139 +1,101 @@
-# Tinder Clone Application
+# Tinder-like Application
 
-A modern dating application backend built with Kotlin, Spring Boot, and reactive programming using coroutines.
+A Kotlin/Spring Boot application with MongoDB, Cassandra, and Redis.
 
-## Technologies
+## Prerequisites
 
-This application uses the following technologies:
-
-- **Kotlin 1.9.24** with Coroutines for asynchronous programming
-- **Spring Boot 3.3.0** for application framework
-- **MongoDB** for primary data storage
-- **Cassandra** for high-throughput data storage
-- **Redis** for caching and real-time features
-- **Elasticsearch** for powerful search capabilities
-- **Kafka** for event streaming and asynchronous communication
-- **Gradle** for build automation
-
-## Project Structure
-
-```
-tinder/
-├── src/
-│   ├── main/
-│   │   ├── kotlin/learn/ai/tinder/
-│   │   │   ├── config/          # Configuration classes
-│   │   │   ├── controller/      # REST controllers
-│   │   │   ├── service/         # Business logic
-│   │   │   ├── repository/      # Data access interfaces
-│   │   │   ├── model/           # Domain models
-│   │   │   ├── dto/             # Data Transfer Objects
-│   │   │   ├── exception/       # Custom exceptions
-│   │   │   ├── util/            # Utility classes
-│   │   │   ├── client/          # External service clients
-│   │   │   └── TinderApplication.kt  # Main application class
-│   │   └── resources/
-│   │       ├── application.yml  # Application configuration
-│   │       ├── static/          # Static resources
-│   │       └── templates/       # Template files
-│   └── test/
-│       ├── kotlin/learn/ai/tinder/
-│       │   ├── service/         # Service tests
-│       │   ├── controller/      # Controller tests
-│       │   └── repository/      # Repository tests
-│       └── resources/           # Test resources
-└── build.gradle.kts             # Build configuration
-```
-
-## Features
-
-- User profile management
-- Matching algorithm based on preferences
-- Real-time messaging
-- Search capabilities for finding potential matches
-- Event-driven architecture for scalability
+- Java 21
+- Docker and Docker Compose
+- Gradle 8.0+
 
 ## Getting Started
 
-### Prerequisites
+### 1. Start the infrastructure
 
-- JDK 21
-- MongoDB
-- Cassandra
-- Redis
-- Elasticsearch
-- Kafka
+```bash
+docker-compose up -d
+```
 
-### Running the Application
+This will start:
+- MongoDB on port 27017
+- Cassandra on port 9042
+- Redis on port 6379
+- Mongo Express (MongoDB UI) on port 8081
+- Redis Commander (Redis UI) on port 8082
 
-1. Clone the repository
-2. Configure the connection details in `src/main/resources/application.yml`
-3. Run the application:
+### 2. Build the application
+
+```bash
+./gradlew clean build
+```
+
+### 3. Run the application
 
 ```bash
 ./gradlew bootRun
 ```
 
-### API Endpoints
+The application will be available at: http://localhost:8080/api
 
-#### User Profiles
+## Project Structure
 
-- `POST /api/profiles` - Create a new user profile
-- `GET /api/profiles/{id}` - Get a user profile by ID
-- `GET /api/profiles/user/{userId}` - Get a user profile by user ID
-- `GET /api/profiles` - Get all user profiles
-- `PUT /api/profiles/{id}` - Update a user profile
-- `DELETE /api/profiles/{id}` - Delete a user profile
-
-## Development
-
-### Building the Project
-
-```bash
-./gradlew build
+```
+src/main/kotlin/learn/ai/tinder/
+├── config/       # Configuration classes
+├── controller/   # REST controllers
+├── service/      # Business logic
+├── repository/   # Data access layer
+├── model/        # Domain models
+├── dto/          # Data Transfer Objects
+├── exception/    # Custom exceptions
+├── util/         # Utility classes
+└── client/       # External service clients
 ```
 
-### Running Tests
+## API Documentation
 
+Once the application is running, you can access:
+- Swagger UI: http://localhost:8080/api/swagger-ui.html
+- Actuator: http://localhost:8080/api/actuator
+
+## Testing
+
+Run unit tests:
 ```bash
 ./gradlew test
 ```
 
-## Architecture
+Run integration tests:
+```bash
+./gradlew integrationTest
+```
 
-This application follows a reactive architecture using Kotlin coroutines for asynchronous programming. The main components are:
+## Development
 
-- **Controllers**: Handle HTTP requests and responses
-- **Services**: Implement business logic
-- **Repositories**: Provide data access
-- **Models**: Represent domain entities
-- **DTOs**: Transfer data between layers
-- **Clients**: Interact with external services
+### Code Style
 
-## Coroutines Usage
+This project uses ktlint for code style enforcement. To check the code style:
 
-The application uses Kotlin coroutines for asynchronous programming:
+```bash
+./gradlew ktlintCheck
+```
 
-- `suspend` functions for non-blocking operations
-- `Flow` for reactive streams
-- Structured concurrency with coroutine scopes
-- Integration with reactive libraries through extension functions
+To automatically fix code style issues:
 
-## Data Storage
+```bash
+./gradlew ktlintFormat
+```
 
-- **MongoDB**: Stores user profiles and application data
-- **Cassandra**: Stores high-throughput data like messages and matches
-- **Redis**: Caches frequently accessed data and manages real-time features
-- **Elasticsearch**: Indexes user profiles for efficient searching
+### Database Migrations
 
-## Event Streaming
+For MongoDB, use Mongock for migrations. Add migration scripts in the `src/main/resources/db/migration` directory.
 
-Kafka is used for event streaming with the following topics:
+## Monitoring
 
-- `tinder-profiles`: User profile updates
-- `tinder-matches`: Match events
-- `tinder-messages`: Message events
+- MongoDB UI: http://localhost:8081
+- Redis Commander: http://localhost:8082
+- Spring Boot Actuator: http://localhost:8080/api/actuator
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

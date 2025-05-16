@@ -18,6 +18,8 @@ Kotlin-Specific Best Practices
 - Use sealed classes for representing restricted class hierarchies.
 - Implement Kotlin's scope functions (let, apply, run, with, also) appropriately.
 - Leverage Kotlin's coroutines for asynchronous programming.
+- use constructor based dependency injection
+- use kotlin specific best practices
 
 Spring Boot Specifics
 - Use Spring Boot starters for quick project setup and dependency management.
@@ -31,14 +33,6 @@ Naming Conventions
 - Use camelCase for method and variable names (e.g., findUserById, isOrderValid).
 - Use ALL_CAPS for constants (e.g., MAX_RETRY_ATTEMPTS, DEFAULT_PAGE_SIZE).
 - Use meaningful and descriptive names that reflect purpose.
-
-jOOQ and Database Access
-- Use jOOQ's code generation to ensure type-safe SQL queries.
-- Implement the repository pattern with jOOQ for data access.
-- Keep SQL queries in jOOQ DSL, not raw SQL strings.
-- Use proper transaction management with Spring's @Transactional.
-- Implement appropriate database normalization and indexing.
-- Use version/timestamp columns for optimistic locking.
 
 Configuration and Properties
 - Use application.yml over application.properties for better structure.

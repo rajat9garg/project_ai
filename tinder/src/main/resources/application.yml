@@ -1,63 +1,68 @@
 spring:
   application:
     name: tinder
-  
-  # MongoDB Configuration
   data:
     mongodb:
-      uri: mongodb://localhost:27017/tinder
+      host: ${MONGO_HOST:localhost}
+      port: ${MONGO_PORT:27017}
+      database: ${MONGO_DATABASE:tinder}
       auto-index-creation: true
-  
-  # Cassandra Configuration
-    cassandra:
-      keyspace-name: tinder
-      contact-points: localhost
-      port: 9042
-      local-datacenter: datacenter1
-      schema-action: CREATE_IF_NOT_EXISTS
-  
-  # Redis Configuration
     redis:
-      host: localhost
-      port: 6379
-      database: 0
-  
-  # Elasticsearch Configuration
-    elasticsearch:
-      uris: http://localhost:9200
-  
-  # Kafka Configuration
-  kafka:
-    bootstrap-servers: localhost:9092
-    consumer:
-      group-id: tinder-group
-      auto-offset-reset: earliest
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DATABASE:0}
+      timeout: ${REDIS_TIMEOUT:5000ms}
+  cassandra:
+    contact-points: ${CASSANDRA_CONTACT_POINTS:localhost:9042}
+    keyspace-name: ${CASSANDRA_KEYSPACE:tinder}
+    local-datacenter: ${CASSANDRA_DATACENTER:datacenter1}
+    schema-action: ${CASSANDRA_SCHEMA_ACTION:CREATE_IF_NOT_EXISTS}
 
 # Server Configuration
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
   servlet:
-    context-path: /api
+    context-path: ${SERVER_SERVLET_CONTEXT_PATH:/api}
+  compression:
+    enabled: true
+    mime-types: "text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json,application/xml"
+
+# Logging Configuration
+logging:
+  level:
+    root: ${LOGGING_LEVEL_ROOT:INFO}
+    org.springframework: ${LOGGING_LEVEL_SPRING:INFO}
+    org.hibernate: ${LOGGING_LEVEL_HIBERNATE:INFO}
+    'learn.ai.tinder': ${LOGGING_LEVEL_APP:DEBUG}
+  file:
+    name: ${LOGGING_FILE_NAME:logs/application.log}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
 
 # Actuator Configuration
 management:
   endpoints:
     web:
+      base-path: ${MANAGEMENT_ENDPOINTS_WEB_BASE_PATH:/actuator}
       exposure:
-        include: health,info,metrics,prometheus
+        include: "${MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE:*}"
   endpoint:
     health:
-      show-details: always
-
-# Logging Configuration
-logging:
-  level:
-    root: INFO
-    learn.ai.tinder: DEBUG
-    org.springframework.data: INFO
-    org.springframework.kafka: INFO
+      show-details: ${MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS:always}
+    metrics:
+      enabled: ${MANAGEMENT_ENDPOINT_METRICS_ENABLED:true}
+  simple:
+    metrics:
+      export:
+        enabled: ${MANAGEMENT_METRICS_EXPORT_SIMPLE_ENABLED:true}
+  metrics:
+    distribution:
+      percentiles-histogram:
+        'http.server.requests': ${MANAGEMENT_METRICS_DISTRIBUTION_PERCENTILES_HISTOGRAM_HTTP_SERVER_REQUESTS:true}
+  observation:
+    http:
+      server:
+        requests:
+          name: http.server.requests
+          percentiles: ${MANAGEMENT_METRICS_WEB_SERVER_REQUEST_AUTOTIME_PERCENTILES:0.5,0.75,0.95,0.99}
