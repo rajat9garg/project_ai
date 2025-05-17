@@ -110,4 +110,31 @@ Follow best practices for:
 - Microservices architecture (if applicable).
 - Asynchronous processing using Kotlin coroutines.
 
+## MongoDB Query Best Practices
+- Use single quotes for MongoDB JSON keys and values in @Query annotations
+- Properly escape MongoDB operators with backslash (e.g., '\$near', '\$geometry')
+- Use the 'value' parameter explicitly in @Query annotations for better readability
+- Prefer '\$nearSphere' over '\$near' for geospatial queries on Earth-like spheres
+- Use appropriate parameter types (Double for coordinates, not String)
+
+## Exception Handling Guidelines
+- Standardize error response format across all exception handlers
+- Include request paths in log messages for better traceability
+- Generate unique error IDs for unexpected exceptions
+- Properly handle specific exceptions like DataIntegrityViolationException
+- Structure field errors in a consistent, readable format
+
+## Kotlin Coroutines Testing
+- Use runTest for testing suspend functions in unit tests
+- Properly wrap assertions that test suspending functions with runBlocking when needed
+- Ensure mock setup is compatible with coroutine execution
+- Always mock ALL method calls that will occur during test execution, including chained calls
+- For each mocked method that returns a value used later in the service, explicitly define behavior with `every { ... } returns ...`
+- Verify all important mock interactions with `verify(exactly = n) { ... }`
+
+## Data Structure Consistency
+- Ensure DTOs, domain models, and repository queries align in structure
+- Use Instant instead of LocalDateTime for timestamp fields when appropriate
+- Verify parameter names and types match between DTOs and domain models
+
 Always create a project using coroutines and Spring for efficient asynchronous programming and robust application development.

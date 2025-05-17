@@ -32,6 +32,7 @@ val springDocVersion = "2.5.0"
 
 dependencies {
     // Spring Boot Starters
+    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-cassandra")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
