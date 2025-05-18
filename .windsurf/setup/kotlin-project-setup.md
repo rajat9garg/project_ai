@@ -64,10 +64,31 @@ Before starting the setup, please provide:
    - This will start all services including Spring Boot application
 
 6. Gradle Setup
-   - check if gradle is installed if not install using sdkman `sdk install gradle 8.5`
-   - Generate gradlew wrapper scripts: gradle wrapper --gradle-version 8.5
-   - Make gradlew executable (Linux/macOS only): chmod +x gradlew
-   - Download all dependencies: ./gradlew build --refresh-dependencies
+   - Check if Gradle is installed. If not, install using SDKMAN:
+     ```bash
+     sdk install gradle 8.5
+     ```
+   - Generate Gradle Wrapper scripts (from project root):
+     ```bash
+     gradle wrapper --gradle-version 8.5 --distribution-type=bin
+     ```
+   - Make gradlew executable (Linux/macOS only):
+     ```bash
+     chmod +x gradlew
+     ```
+   - Verify the wrapper works:
+     ```bash
+     ./gradlew --version
+     ```
+   - Download all dependencies:
+     ```bash
+     ./gradlew build --refresh-dependencies
+     ```
+   - The following files should be committed to version control:
+     - gradlew (Unix script)
+     - gradlew.bat (Windows script)
+     - gradle/wrapper/gradle-wrapper.jar
+     - gradle/wrapper/gradle-wrapper.properties
 
 7. Client Setup
    - Add dependencies and imports for the client for the technologies in the step 4
