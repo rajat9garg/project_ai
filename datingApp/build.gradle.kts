@@ -1,12 +1,24 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "3.2.12"
+    // Core plugins
+    id("org.springframework.boot") version "3.2.5"
     id("io.spring.dependency-management") version "1.1.4"
-    kotlin("jvm") version "1.9.20"
-    kotlin("plugin.spring") version "1.9.20"
-    kotlin("plugin.jpa") version "1.9.20"
-    kotlin("kapt") version "1.9.20"
+    kotlin("jvm") version "1.9.23"
+    kotlin("plugin.spring") version "1.9.23"
+    kotlin("plugin.jpa") version "1.9.23"
+    kotlin("plugin.allopen") version "1.9.23"
+    kotlin("plugin.noarg") version "1.9.23"
+    
+    // OpenAPI plugins
+    id("org.springdoc.openapi-gradle-plugin") version "1.8.0"
+    id("org.openapi.generator") version "7.3.0"
+    
+    // Additional Kotlin plugins
+    kotlin("kapt") version "1.9.23"
+    
+    // Code quality
+    id("org.jlleitschuh.gradle.ktlint") version "11.6.0"
 }
 
 group = "learn.ai"
@@ -16,61 +28,209 @@ java.sourceCompatibility = JavaVersion.VERSION_21
 repositories {
     mavenCentral()
     maven { url = uri("https://repo.spring.io/milestone") }
+    maven { url = uri("https://repo.spring.io/snapshot") }
 }
+
+// Dependency versions
+val swaggerVersion = "2.2.20"
+val openapiVersion = "1.8.0"
+val jjwtVersion = "0.11.5"
+val testContainersVersion = "1.19.3"
+val mockkVersion = "1.13.8"
+val springMockkVersion = "4.0.2"
+val assertjVersion = "3.24.2"
 
 dependencies {
     // Spring Boot Starters
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-web") {
+        exclude(module = "spring-boot-starter-tomcat")
+    }
+    implementation("org.springframework.boot:spring-boot-starter-undertow")
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    
+    // Spring Data
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
+    
+    // Spring Data
+    implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+    
+    // Swagger/OpenAPI
+    implementation("org.springdoc:springdoc-openapi-ui:$openapiVersion")
+    implementation("org.springdoc:springdoc-openapi-kotlin:$openapiVersion")
+    
+    // Spring Security
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    
+    // Validation
     implementation("org.springframework.boot:spring-boot-starter-validation")
-    
-    // MongoDB
-    implementation("org.mongodb:mongodb-driver-sync")
-    implementation("org.mongodb:bson")
-    implementation("org.mongodb:mongodb-driver-core")
-    
-    // BOMs
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.2.12"))
-    implementation(platform("org.testcontainers:testcontainers-bom:1.19.1"))
+    implementation("jakarta.validation:jakarta.validation-api:3.0.2")
     
     // Kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core")
+    
+    // JWT
+    implementation("io.jsonwebtoken:jjwt-api:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-impl:$jjwtVersion")
+    runtimeOnly("io.jsonwebtoken:jjwt-jackson:$jjwtVersion")
+    
+    // MongoDB
+    implementation("org.mongodb:mongodb-driver-sync")
+    
+    // OpenAPI and Documentation
+    implementation("io.swagger.core.v3:swagger-annotations:$swaggerVersion")
+    implementation("io.swagger.core.v3:swagger-models:$swaggerVersion")
     
     // Logging
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
-    
-    // Utilities
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
     
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
         exclude(module = "mockito-core")
     }
-    testImplementation("org.junit.jupiter:junit-jupiter-api")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
-    testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("com.ninja-squad:springmockk:4.0.2")
-    testImplementation("org.testcontainers:testcontainers:1.19.1")
-    testImplementation("org.testcontainers:mongodb:1.19.1")
-    testImplementation("org.testcontainers:junit-jupiter:1.19.1")
-    testImplementation("org.assertj:assertj-core:3.24.2")
+    testImplementation("io.projectreactor:reactor-test")
+    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation("com.ninja-squad:springmockk:$springMockkVersion")
+    testImplementation("org.testcontainers:mongodb:$testContainersVersion")
+    testImplementation("org.testcontainers:junit-jupiter:$testContainersVersion")
+    testImplementation("org.assertj:assertj-core:$assertjVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
+    
+    // Development tools
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    developmentOnly("org.springframework.boot:spring-boot-docker-compose")
 }
 
+// Configure dependency management for Spring Boot
+dependencyManagement {
+    imports {
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.2.5")
+    }
+}
+
+// Configure Kotlin compilation tasks
 tasks.withType<KotlinCompile> {
     kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
+        freeCompilerArgs = listOf("-Xjsr305=strict", "-Xjvm-default=all")
         jvmTarget = "21"
     }
 }
 
+// Configure test tasks
 tasks.withType<Test> {
     useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
+    }
+}
+
+// OpenAPI Generator configuration
+openApiGenerate {
+    generatorName.set("spring")
+    inputSpec.set("$rootDir/src/main/resources/openapi/api.yaml")
+    outputDir.set("$buildDir/generated")
+    apiPackage.set("${project.group}.generated.api")
+    modelPackage.set("${project.group}.generated.model")
+    configOptions.set(mapOf(
+        "interfaceOnly" to "true",
+        "useSpringBoot3" to "true",
+        "useBeanValidation" to "true",
+        "documentationProvider" to "none"
+    ))
+}
+
+// Add generated sources to the main source set
+sourceSets.main {
+    java.srcDirs("$buildDir/generated/src/main/kotlin")
+}
+
+// Ensure the openApiGenerate task runs before compilation
+tasks.compileKotlin {
+    dependsOn("openApiGenerate")
+}
+
+// Configure Java compilation
+tasks.withType<JavaCompile> {
+    sourceCompatibility = "21"
+    targetCompatibility = "21"
+}
+
+// Configure OpenAPI Generator
+tasks.register("generateOpenApiClient", org.openapitools.generator.gradle.plugin.tasks.GenerateTask::class) {
+    generatorName.set("kotlin-spring")
+    inputSpec.set("$rootDir/src/main/resources/openapi/api.yaml")
+    outputDir.set("$buildDir/generated")
+    apiPackage.set("${project.group}.generated.api")
+    modelPackage.set("${project.group}.generated.model")
+    invokerPackage.set("${project.group}.generated.invoker")
+    configOptions.set(
+        mapOf(
+            "interfaceOnly" to "true",
+            "useSpringBoot3" to "true",
+            "useBeanValidation" to "true",
+            "documentationProvider" to "springdoc",
+            "serializationLibrary" to "jackson",
+            "enumPropertyNaming" to "UPPERCASE",
+            "serializableModel" to "true",
+            "library" to "spring-boot",
+            "reactive" to "true",
+            "useTags" to "true",
+            "skipDefaultInterface" to "true",
+            "exceptionHandler" to "false",
+            "performBeanValidation" to "true",
+            "useSwaggerUI" to "true",
+            "documentationProvider" to "none"
+        )
+    )
+    typeMappings.set(
+        mapOf(
+            "OffsetDateTime" to "java.time.Instant",
+            "LocalDate" to "java.time.LocalDate"
+        )
+    )
+    importMappings.set(
+        mapOf(
+            "java.time.OffsetDateTime" to "java.time.Instant",
+            "org.springframework.data.domain.Pageable" to "org.springdoc.core.converters.models.Pageable"
+        )
+    )
+    generateApiTests.set(false)
+    generateModelTests.set(false)
+    generateApiDocumentation.set(false)
+    generateModelDocumentation.set(false)
+    withXml.set(false)
+    skipOverwrite.set(false)
+    logToStderr.set(true)
+    validateSpec.set(false) // Skip validation during build
+    generateAliasAsModel.set(false)
+    skipOperationExample.set(true)
+}
+
+// Ensure the OpenAPI client is generated during build
+tasks.build {
+    dependsOn("openApiGenerate")
+}
+
+// Configure the build to generate OpenAPI client when building
+tasks.compileKotlin {
+    dependsOn("openApiGenerate")
+}
+
+// Add the generated sources to the main source set
+sourceSets.main {
+    java {
+        srcDirs(
+            "$buildDir/generated/openapi/src/main/kotlin",
+            "$projectDir/src/main/kotlin"
+        )
     }
 }
 

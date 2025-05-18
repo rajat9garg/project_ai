@@ -1,0 +1,264 @@
+openapi: 3.0.3
+info:
+  title: Dating App API
+  description: API for the Dating Application
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@datingapp.com
+
+servers:
+  - url: /api
+    description: Local development server
+
+paths:
+  /users/register:
+    post:
+      tags:
+        - Users
+      summary: Register a new user
+      description: Creates a new user account with the provided details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Returns a paginated list of all users
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/size'
+        - $ref: '#/components/parameters/sort'
+      responses:
+        '200':
+          description: A paginated list of users
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageUserResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+components:
+  parameters:
+    page:
+      name: page
+      in: query
+      description: Page number (0..N)
+      required: false
+      schema:
+        type: integer
+        format: int32
+        default: 0
+    size:
+      name: size
+      in: query
+      description: Number of records per page
+      required: false
+      schema:
+        type: integer
+        format: int32
+        default: 20
+    sort:
+      name: sort
+      in: query
+      description: >-
+        Sorting criteria in the format: property,(asc|desc). Default sort order
+        is ascending. Multiple sort criteria are supported.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+        example: ["name,asc", "createdAt,desc"]
+
+  schemas:
+    UserRegistrationRequest:
+      type: object
+      required:
+        - email
+        - password
+        - firstName
+        - lastName
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: user@example.com
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: User's password (min 8 characters)
+          example: securePassword123
+        firstName:
+          type: string
+          description: User's first name
+          example: John
+        lastName:
+          type: string
+          description: User's last name
+          example: Doe
+        dateOfBirth:
+          type: string
+          format: date
+          description: User's date of birth (YYYY-MM-DD)
+          example: '1990-01-01'
+        gender:
+          type: string
+          enum: [MALE, FEMALE, OTHER, PREFER_NOT_TO_SAY]
+          description: User's gender
+          example: MALE
+        bio:
+          type: string
+          description: Short bio or description about the user
+          example: I love hiking and traveling!
+        profilePictureUrl:
+          type: string
+          format: uri
+          description: URL to the user's profile picture
+          example: https://example.com/profile.jpg
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+        username:
+          type: string
+          description: User's username
+        email:
+          type: string
+          format: email
+          description: User's email address
+        firstName:
+          type: string
+          description: User's first name
+        lastName:
+          type: string
+          description: User's last name
+        createdAt:
+          type: string
+          format: date-time
+          description: When the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the user was last updated
+
+    PageUserResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResponse'
+        totalElements:
+          type: integer
+          format: int64
+          description: Total number of elements across all pages
+        totalPages:
+          type: integer
+          format: int32
+          description: Total number of pages
+        size:
+          type: integer
+          format: int32
+          description: Number of elements in the current page
+        number:
+          type: integer
+          format: int32
+          description: Current page number (0-based)
+        sort:
+          type: object
+          properties:
+            sorted:
+              type: boolean
+              description: Whether the results are sorted
+            unsorted:
+              type: boolean
+              description: Whether the results are unsorted
+            empty:
+              type: boolean
+              description: Whether the sort is empty
+        first:
+          type: boolean
+          description: Whether this is the first page
+        last:
+          type: boolean
+          description: Whether this is the last page
+        numberOfElements:
+          type: integer
+          format: int32
+          description: Number of elements in the current page
+        empty:
+          type: boolean
+          description: Whether the page is empty
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: When the error occurred
+        status:
+          type: integer
+          format: int32
+          description: HTTP status code
+        error:
+          type: string
+          description: Error reason phrase
+        message:
+          type: string
+          description: Error message
+        path:
+          type: string
+          description: Request path
+
+  responses:
+    BadRequest:
+      description: Bad Request - Invalid input data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+            
+    Unauthorized:
+      description: Unauthorized - Authentication is required or has failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden - The user doesn't have permission to access this resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'

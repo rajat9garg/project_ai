@@ -40,6 +40,29 @@
 #### Search
 - **Elasticsearch**: 8.7.0 (For advanced search capabilities)
 
+### API Documentation
+
+#### OpenAPI Specification
+- **Version**: 3.0.3
+- **Location**: `/src/main/resources/openapi/api.yaml`
+- **Key Features**:
+  - Comprehensive API documentation with request/response schemas
+  - Interactive documentation (when served via SpringDoc)
+  - Code generation for client SDKs
+  - Request/response validation
+
+#### Documentation Endpoints
+- **OpenAPI JSON**: `/v3/api-docs` (when enabled)
+- **Swagger UI**: `/swagger-ui.html` (when enabled)
+- **ReDoc**: `/api-docs` (when enabled)
+
+#### Code Generation
+- **Tool**: OpenAPI Generator
+- **Configuration**:
+  - Generates models from OpenAPI spec
+  - Supports multiple languages (Java, TypeScript, etc.)
+  - Integrated with Gradle build
+
 ### Infrastructure
 - **Containerization**: Docker 23.0, Docker Compose
 - **CI/CD**: GitHub Actions
@@ -169,6 +192,41 @@ Feature flags are managed through a combination of:
 - Spring Cloud Config
 - Database-driven configuration
 - Environment variables
+
+## API Implementation
+
+### User Management API
+
+#### Endpoints
+- `GET /api/users/{id}` - Get user by ID
+- `GET /api/users` - Get paginated list of users with sorting
+- `POST /api/users` - Register a new user
+- `PUT /api/users/{id}` - Update user information
+- `DELETE /api/users/{id}` - Delete a user
+
+#### Request/Response Formats
+- **Request Headers**:
+  - `Content-Type: application/json`
+  - `Accept: application/json`
+
+- **Response Codes**:
+  - `200 OK`: Successful request
+  - `201 Created`: Resource created successfully
+  - `204 No Content`: Resource deleted successfully
+  - `400 Bad Request`: Invalid request data
+  - `404 Not Found`: Resource not found
+  - `500 Internal Server Error`: Server error
+
+#### Pagination
+- **Query Parameters**:
+  - `page`: Page number (0-based, default: 0)
+  - `size`: Number of items per page (default: 20)
+  - `sort`: Sort criteria in the format: `property,asc|desc`
+
+#### Validation
+- Input validation using Jakarta Bean Validation
+- Custom validation annotations for business rules
+- Consistent error response format
 
 ## Security Considerations
 

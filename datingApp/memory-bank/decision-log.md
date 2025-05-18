@@ -15,10 +15,48 @@ Each entry should include:
 
 ---
 
+## 2025-05-19 - UserController Implementation
+- **Status**: Approved
+- **Context**: Need to implement the REST API endpoints for user management in the dating application
+- **Decision**: Implemented UserController with the following design decisions:
+  - RESTful endpoints following REST principles
+  - Proper HTTP status codes for different scenarios
+  - Pagination and sorting support for user listing
+  - Input validation using Jakarta Validation
+  - Proper error handling and response formats
+  - Clean separation of concerns with DTOs and mappers
+- **Consequences**:
+  - Consistent API design across the application
+  - Better maintainability and testability
+  - Improved developer experience with clear contracts
+  - Easier client integration with standardized responses
+- **Alternatives Considered**:
+  - GraphQL: More flexible but added complexity
+  - gRPC: Better performance but less web-friendly
+  - Traditional MVC: Simpler but less flexible for API evolution
+- **Related**: [API Documentation](./tech-context.md#api-documentation)
+
+## 2025-05-18 - Test Data Generation Script
+- **Status**: Approved
+- **Context**: Need realistic test data for development and testing of the dating application
+- **Decision**: Created a Kotlin script to generate 5000 realistic user profiles with the following characteristics:
+  - 50/50 male/female distribution
+  - Realistic names and email addresses using JavaFaker
+  - Ages between 18 and 45
+  - Locations from popular cities worldwide with optional geocoordinates
+  - Realistic preferences with sensible age ranges
+  - 80% of users have a default hashed password ("password")
+  - 30% of users have geolocation coordinates
+- **Consequences**:
+  - Enables realistic testing of matching algorithms
+  - Provides data for performance testing
+  - Ensures consistent test data across environments
+- **Related**: #testing #test-data #development
+
 ## 2025-05-18 - Registration Endpoint Validation
 - **Status**: Approved
 - **Context**: Need to ensure proper validation and error handling for user registration endpoint
-- **Decision**: 
+- **Decision`: 
   - Implemented comprehensive validation in UserRegistrationRequest DTO
   - Added detailed error messages for validation failures
   - Enhanced logging for better debugging

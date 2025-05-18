@@ -5,6 +5,34 @@
 > - [Decision Log](./decision-log.md) for architectural decisions
 > - [Open Questions](./open-questions.md) for pending technical decisions
 
+## System Architecture and Design Patterns
+
+## API Design
+
+### User Registration Endpoint
+- **Endpoint**: `POST /api/users/register`
+- **Description**: Allows new users to create an account
+- **Request Body**: 
+  - Required fields: email, password, firstName, lastName
+  - Optional fields: dateOfBirth, gender, bio, profilePictureUrl
+- **Responses**:
+  - 201: User created successfully
+  - 400: Invalid input data
+  - 409: Email already exists
+- **Security**: Public endpoint (no authentication required)
+
+### User Listing Endpoint
+- **Endpoint**: `GET /api/users`
+- **Description**: Retrieves a paginated list of users
+- **Query Parameters**:
+  - page: Page number (0-based)
+  - size: Number of items per page
+  - sort: Sorting criteria (e.g., "name,asc")
+- **Responses**:
+  - 200: Success with paginated user list
+  - 401: Unauthorized (missing/invalid token)
+  - 403: Forbidden (insufficient permissions)
+
 ## System Architecture
 
 ### High-Level Architecture

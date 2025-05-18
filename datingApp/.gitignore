@@ -66,6 +66,7 @@ logs/
 !**/src/**/application*.yaml
 !**/src/**/bootstrap*.yml
 !**/src/**/bootstrap*.yaml
+!**/src/**/openapi/*.yaml
 
 # Local configuration files (override application-*.yml)
 **/application-local*.yml
