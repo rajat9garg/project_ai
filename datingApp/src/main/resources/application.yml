@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: dating-app
+  
+  # MongoDB Configuration
+  data:
+    mongodb:
+      uri: ${MONGO_URI:mongodb://localhost:27017/datingApp}
+      auto-index-creation: true
+  
+  # Redis Configuration
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    database: ${REDIS_DATABASE:0}
+    timeout: 5000ms
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# Logging Configuration
+logging:
+  level:
+    root: INFO
+    learn.ai.dating: DEBUG
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
+    org.springframework.data.redis.core.RedisTemplate: DEBUG
