@@ -6,14 +6,37 @@ spring:
   data:
     mongodb:
       uri: ${MONGO_URI:mongodb://localhost:27017/datingApp}
+      database: ${MONGO_DATABASE:datingApp}
       auto-index-creation: true
-  
-  # Redis Configuration
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    database: ${REDIS_DATABASE:0}
-    timeout: 5000ms
+      
+    # Redis Configuration
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      database: ${REDIS_DATABASE:0}
+      connect-timeout: 5000ms
+      timeout: 5000ms
+      client-type: lettuce
+
+  # Web configuration
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+    log-request-details: true
+    
+  # Jackson configuration
+  jackson:
+    default-property-inclusion: non-null
+    serialization:
+      write-dates-as-timestamps: false
+      write-durations-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: true
+
+  # Validation messages
+  messages:
+    basename: messages
+    encoding: UTF-8
 
 # Server Configuration
 server:
@@ -25,6 +48,10 @@ server:
 logging:
   level:
     root: INFO
-    learn.ai.dating: DEBUG
-    org.springframework.data.mongodb.core.MongoTemplate: DEBUG
-    org.springframework.data.redis.core.RedisTemplate: DEBUG
+    '[learn.ai.dating]': DEBUG
+    '[org.springframework.web]': DEBUG
+    '[org.springframework.validation]': DEBUG
+    '[org.springframework.web.servlet.mvc.method.annotation]': TRACE
+    '[org.mongodb.driver]': DEBUG
+    '[org.springframework.data.mongodb.core.MongoTemplate]': DEBUG
+    '[org.springframework.data.redis.core.RedisTemplate]': DEBUG

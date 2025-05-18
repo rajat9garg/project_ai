@@ -15,6 +15,50 @@ Each entry should include:
 
 ---
 
+## 2025-05-18 - Registration Endpoint Validation
+- **Status**: Approved
+- **Context**: Need to ensure proper validation and error handling for user registration endpoint
+- **Decision**: 
+  - Implemented comprehensive validation in UserRegistrationRequest DTO
+  - Added detailed error messages for validation failures
+  - Enhanced logging for better debugging
+  - Fixed endpoint URL to respect server context path
+- **Consequences**:
+  - More robust input validation
+  - Better error messages for API consumers
+  - Easier debugging with detailed logs
+- **Related**: #user-registration #validation #error-handling
+
+## 2025-05-18 - Optional Password in User Registration
+- **Status**: Approved
+- **Context**: Need to support user registration with optional password for social login scenarios
+- **Decision**: Made password field optional in User model and registration DTO
+- **Consequences**: 
+  - Users can register without a password (for social login)
+  - Email is now the primary identifier
+  - Password validation remains when password is provided
+- **Alternatives Considered**:
+  - Requiring password for all registrations (rejected as too restrictive)
+  - Separate registration flows for email/password and social (rejected for UX complexity)
+- **Related**: #user-registration #authentication
+
+## 2025-05-18 - MongoDB Configuration
+- **Status**: Approved
+- **Context**: Need to configure MongoDB for the application with optimal settings
+- **Decision**: Use standard synchronous MongoDB driver instead of reactive
+- **Consequences**:
+  - Simpler codebase
+  - Easier to test and debug
+  - Adequate performance for current scale
+- **Alternatives Considered**:
+  - **Reactive MongoDB**:
+    - Pros: Better scalability, non-blocking I/O
+    - Cons: Steeper learning curve, more complex error handling
+  - **JPA/Hibernate with PostgreSQL**:
+    - Pros: Strong consistency, ACID transactions
+    - Cons: Less flexible schema, more complex for hierarchical data
+- **Related**: [Database Configuration](./tech-context.md#database-configuration)
+
 ## 2025-05-18 - Authentication Mechanism
 - **Status**: Approved
 - **Context**: Need secure user authentication for the dating app
