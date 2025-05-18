@@ -90,6 +90,8 @@ object TestDataFactory {
 - Use `every` to define mock behavior
 - Use `verify` to verify interactions
 - Prefer relaxed mocks (`relaxed = true`) when return values aren't important
+- For repository mocks, always verify interactions with the database
+- Mock external service calls to ensure test isolation
 
 ```kotlin
 private val mockRepository = mockk<Repository>(relaxed = true)
@@ -129,6 +131,15 @@ assertThat(capturedUser.name).isEqualTo("Test User")
 - Use `assertThat(actual).isEqualTo(expected)` for equality checks
 - Use `assertThatThrownBy` for exception assertions
 - Use `assertThatCollection` for collection assertions
+- For validation errors, verify both field and message:
+  ```kotlin
+  assertThat(exception.fieldErrors)
+      .extracting("field", "message")
+      .containsExactlyInAnyOrder(
+          tuple("email", "must be a well-formed email address"),
+          tuple("password", "size must be between 8 and 50")
+      )
+  ```
 
 ```kotlin
 // Collection assertions
@@ -189,6 +200,29 @@ class UserControllerIT {
 - Use descriptive variable names
 - Add comments for complex test setups
 - Group related assertions
+- Test both happy path and edge cases
+- Include validation tests for all constraints
+
+### 9.2 Validation Testing
+- Test all validation constraints on DTOs
+- Verify error messages are user-friendly
+- Test both valid and invalid input combinations
+- For optional fields, test both null and empty values
+- Use `@Validated` on controller methods for automatic validation
+
+### 9.3 API Contract Testing
+- Test all API endpoints with valid and invalid inputs
+- Verify response status codes and error formats
+- Test authentication and authorization requirements
+- Document API contracts using OpenAPI/Swagger
+- Test error responses for edge cases
+
+### 9.4 Test Data Management
+- Use consistent test data across test classes
+- Consider using a `TestDataFactory` for complex objects
+- Use `@BeforeEach` to set up common test data
+- Clean up test data after each test
+- Use random data generators for properties that don't affect test logic
 
 ### 9.2 Test Performance
 - Keep unit tests fast (under 50ms each)

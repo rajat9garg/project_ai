@@ -10,11 +10,44 @@ trigger: always_on
 - Always use environment variables for MongoDB connection strings
 - Use the format: `mongodb://[username:password@]host1[:port1][,...hostN[:portN]]/database`
 - Example: `mongodb://user:password@localhost:27017/datingApp`
+- For local development, use: `mongodb://localhost:27017/datingApp`
+- For production, use environment variables: `${MONGO_URI:mongodb://localhost:27017/datingApp}`
 
 ### Connection Pool Settings
 - Configure appropriate connection pool size based on your application needs
-- Default pool size is typically sufficient for most applications
+- Default pool size is typically sufficient for most applications (default: 100 connections)
 - Adjust based on your expected concurrent database operations
+- Configure timeouts:
+  - Connect timeout: 5000ms
+  - Socket timeout: 5000ms
+  - Server selection timeout: 30000ms
+
+## Spring Data MongoDB Configuration
+
+### Repository Configuration
+- Extend `MongoRepository` for standard CRUD operations
+- Use `@Document` annotation for entity classes
+- Use `@Id` for the document ID field
+- Configure auto-index creation in application.yml:
+  ```yaml
+  spring:
+    data:
+      mongodb:
+        auto-index-creation: true
+  ```
+
+### Query Methods
+- Use method name query derivation for simple queries
+- Use `@Query` annotation for complex queries
+- Prefer `findBy` methods over `@Query` when possible for better readability
+- Use `existsBy` for existence checks
+- Use `countBy` for counting documents
+
+### Transactions
+- Use `@Transactional` for multi-document operations
+- Keep transactions short and focused
+- Be aware of the performance impact of transactions
+- Handle transaction exceptions appropriately
 
 ## Schema Design
 
@@ -29,6 +62,26 @@ trigger: always_on
 - Use compound indexes for queries that filter on multiple fields
 - Be mindful of index size and performance impact on write operations
 - Monitor query performance using MongoDB's explain()
+- Example index definition:
+  ```kotlin
+  @Document(collection = "users")
+  @CompoundIndex(def = "{email: 1}", unique = true)
+  data class User(
+      @Id val id: String,
+      val email: String,
+      // other fields
+  )
+  ```
+- For text search, create text indexes:
+  ```kotlin
+  @Document(collection = "users")
+  @TextIndexed(weight = 2)
+  data class User(
+      @Id val id: String,
+      @TextIndexed val name: String,
+      @TextIndexed(weight = 3) val bio: String
+  )
+  ```
 
 ## Data Access
 
