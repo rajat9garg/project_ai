@@ -38,13 +38,8 @@ trigger: always_on
 - Use test profiles for different scenarios
 
 ## Security
-- Implement Spring Security for authentication and authorization
-- Use proper password encoding (e.g., BCrypt)
-- Validate all user inputs
-- Use parameterized queries to prevent SQL injection
-- Follow OWASP security guidelines
-- Implement proper CORS policies
-- Set up rate limiting for public APIs
+- Please DO NOT USE ANY SPRING SECURITY
+- PLEASE DO NOT USE ANY KIND OF SECURITY
 
 ## Logging and Monitoring
 - Use SLF4J with Logback for logging
@@ -54,15 +49,6 @@ trigger: always_on
 - Implement structured logging with JSON format
 - Use correlation IDs for request tracing
 - Configure log rotation and retention policy
-
-## API Documentation
-- Use Springdoc OpenAPI for API documentation
-- Document all public APIs with KDoc
-- Include examples for complex methods
-- Follow RESTful principles
-- Use proper HTTP methods (GET, POST, PUT, DELETE, PATCH)
-- Implement consistent URL naming (kebab-case, plural resources)
-- Use versioning strategy (URL path or headers)
 
 ## Error Handling
 - Implement comprehensive exception handling
