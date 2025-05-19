@@ -40,6 +40,16 @@
 #### Search
 - **Elasticsearch**: 8.7.0 (For advanced search capabilities)
 
+### API Implementation
+- **Framework**: Spring WebFlux for reactive endpoints
+- **Documentation**: OpenAPI 3.0 with Swagger UI
+- **Validation**: Built-in Bean Validation with custom error messages
+- **Key Components**:
+  - `UserController`: Handles user registration and management
+  - `UserService`: Contains business logic for user operations
+  - `UserRepository`: Data access layer for MongoDB
+  - DTOs: Separate models for API contracts and internal use
+
 ### Infrastructure
 - **Containerization**: Docker 23.0, Docker Compose
 - **CI/CD**: GitHub Actions

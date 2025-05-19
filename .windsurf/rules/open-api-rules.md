@@ -2,120 +2,187 @@
 trigger: always_on
 ---
 
-# OpenAPI Specification Guidelines (Windsurf)
+# OpenAPI Specification (OAS) Guidelines
 
 ## Table of Contents
 - [File Structure](#file-structure)
 - [Specification Format](#specification-format)
 - [Versioning](#versioning)
 - [Documentation Standards](#documentation-standards)
+- [Code Generation](#code-generation)
 - [Validation](#validation)
+- [Security](#security)
 - [Best Practices](#best-practices)
 
 ## File Structure
 
-- Store specs in `src/main/resources/openapi/`
-- Main file: `api.yaml`
-- Use `$ref` to split large specs
-- Place all schema definitions in `schemas/`
-- File naming: kebab-case
-- Schema property names: snake_case
-- Constants: UPPER_SNAKE_CASE
-- Schema names: PascalCase
+### Location
+- Store OpenAPI specifications in: `src/main/resources/openapi/`
+- Main specification file must be named: `api.yaml`
+- Split large specs into multiple files using `$ref`
+- Keep all schema definitions in a `schemas/` subdirectory
+
+### Naming Conventions
+- Use kebab-case for file names
+- Use snake_case for schema property names
+- Use UPPER_SNAKE_CASE for constants
+- Use PascalCase for schema names
 
 ## Specification Format
 
+### Required Structure
 ```yaml
 openapi: 3.0.3
 info:
   title: Service Name API
-  description: API documentation
+  description: Comprehensive API documentation
   version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+  license:
+    name: Proprietary
 servers:
   - url: /api/v1
+    description: Production server
 paths:
-  /example:
+  /resource:
     get:
-      summary: Example endpoint
+      summary: Get resource
       responses:
         '200':
-          description: OK
+          description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Example'
+                $ref: '#/components/schemas/Resource'
 components:
   schemas:
-    Example:
+    Resource:
       type: object
       properties:
         id:
           type: string
           format: uuid
           example: 123e4567-e89b-12d3-a456-426614174000
-Versioning
-API version in path (e.g., /api/v1/)
+```
 
-Semantic versioning: MAJOR.MINOR.PATCH
+## Versioning
 
-Update info.version on each release
+### API Versioning
+- Include API version in the URL path (e.g., `/api/v1/resource`)
+- Use semantic versioning (MAJOR.MINOR.PATCH)
+- Document breaking changes in release notes
+- Support at least the current and previous major versions
 
-Use Git tags and maintain a changelog
+### Specification Versioning
+- Update version in `info.version` for each release
+- Use Git tags for version control
+- Include changelog with each version
 
-Documentation Standards
-Use clear, short endpoint descriptions
+## Documentation Standards
 
-Document all request/response schemas with field descriptions
+### Required Elements
+- Clear, concise endpoint descriptions that explain the business purpose
+- All request/response schemas with field-level documentation
+- HTTP status codes and their meanings (success and error cases)
+- Authentication requirements (e.g., JWT token, API key)
+- Rate limiting information (headers, limits, and quotas)
+- Error response formats and possible error codes
+- Examples for all operations with realistic data
+- Deprecation notices for old endpoints with migration guides
+- Request/response content types (e.g., `application/json`)
+- Required vs. optional fields clearly marked
+- Format constraints (e.g., email, date-time, UUID)
+- Default values where applicable
+- Enum values and their meanings
+- Pagination parameters and response headers
+- Sorting and filtering capabilities
+- Field selection (if supported)
+- Versioning strategy and compatibility guarantees
 
-Include:
+### Best Practices
+- Use markdown for rich text formatting
+- Include examples for all schemas
+- Document all possible error responses
+- Use consistent terminology
+- Keep descriptions under 200 characters when possible
+- Use enums for fixed sets of values
+- Document default values
 
-Status codes and meaning
+## Code Generation
 
-Request/response content types
+### Configuration
+- Use OpenAPI Generator for code generation
+- Configure in `build.gradle.kts` with appropriate plugins:
+  ```kotlin
+  plugins {
+      id("org.openapi.generator") version "6.6.0"
+  }
+  
+  openApiGenerate {
+      generatorName.set("kotlin-spring")
+      inputSpec.set("$rootDir/src/main/resources/openapi/api.yaml")
+      outputDir.set("$buildDir/generated")
+      modelPackage.set("${project.group}.generated.model")
+      apiPackage.set("${project.group}.generated.api")
+      configOptions.set(
+          mapOf(
+              "interfaceOnly" to "true",
+              "useSpringBoot3" to "true",
+              "useBeanValidation" to "true",
+              "documentationProvider" to "none"
+          )
+      )
+  }
+  
+  // Add generated sources to the main source set
+  sourceSets.main {
+      java.srcDirs("$buildDir/generated/src/main/kotlin")
+  }
+  
+  // Ensure the openApiGenerate task runs before compilation
+  tasks.compileKotlin {
+      dependsOn("openApiGenerate")
+  }
+  ```
+- Generate models, APIs, and documentation
+- Keep generated code in `build/generated`
+- Never modify generated code directly - update the OpenAPI spec instead
+- Add `build/generated` to `.gitignore` to prevent committing generated code
 
-Examples with realistic values
+### Client SDKs
+- Generate for at least Java and TypeScript
+- Include usage examples in README
+- Publish to package repositories
 
-Required vs optional fields
+## Validation
 
-Format constraints (UUID, email, etc.)
+### Schema Validation
+- Validate all requests against the schema
+- Return 400 for invalid requests
+- Include detailed error messages
+- Validate enums and patterns
+- Enforce required fields
 
-Enums and their meanings
+### Contract Testing
+- Test all API endpoints against the spec
+- Validate request/response formats
+- Test error conditions
+- Include contract tests in CI/CD
 
-Default values (if any)
 
-Pagination, filtering, sorting fields
+## Best Practices
 
-Deprecation notes when applicable
-
-Validation
-Validate all inputs and outputs against schema
-
-Use correct HTTP status codes (400 for invalid requests)
-
-Show descriptive error messages
-
-Enforce required fields, formats, patterns
-
-Best Practices
-Keep specs DRY using $ref
-
-Group related endpoints with tags
-
-Use consistent naming (snake_case, kebab-case)
-
-Include examples for all models
-
-Reuse schemas for consistent structure
-
-Use enums for fixed sets of values
-
-Keep descriptions concise (<200 chars)
-
-Document default values
-
-Reactive Design
-All APIs must generate reactive interfaces (e.g., using Mono, Flux)
-
-Models should be compatible with reactive programming
-
-Do not use blocking types or imperative signatures
+### General
+- Keep the spec DRY (Don't Repeat Yourself)
+- Use `$ref` for reusable components (e.g., `#/components/schemas/ErrorResponse`)
+- Keep response objects consistent across similar endpoints
+- Document all fields with descriptions and examples
+- Use consistent naming conventions (snake_case for properties, kebab-case for paths)
+- Include examples for all request/response schemas
+- Document all possible error responses with appropriate HTTP status codes
+- Use enums for fixed sets of values (e.g., user roles, status values)
+- Document default values for optional parameters
+- Include deprecation notices for old endpoints
+- Use tags to group related endpoints (e.g., "Users", "Authentication")

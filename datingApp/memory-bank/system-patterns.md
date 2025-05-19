@@ -309,6 +309,68 @@ For more details, see the [Authentication Decision](./decision-log.md#2025-05-18
 - `POST /matches/{id}/like` - Like a user
 - `POST /matches/{id}/pass` - Pass on a user
 
+## API Design Pattern
+
+### Controller-Service-Repository Pattern
+
+1. **Controller Layer**
+   - Handles HTTP requests and responses
+   - Performs input validation
+   - Maps between API models and internal DTOs
+   - Example:
+     ```kotlin
+     @RestController
+     @RequestMapping("/api/v1/users")
+     class UserController(
+         private val userService: UserService
+     ) {
+         @PostMapping
+         fun registerUser(
+             @Valid @RequestBody request: UserRegistrationRequest
+         ): ResponseEntity<UserResponse> {
+             // Map to internal DTO and delegate to service
+         }
+     }
+     ```
+
+2. **Service Layer**
+   - Contains business logic
+   - Coordinates between different repositories
+   - Handles transactions
+   - Example:
+     ```kotlin
+     @Service
+     class UserService(
+         private val userRepository: UserRepository
+     ) {
+         fun registerUser(dto: UserRegistrationDto): User {
+             // Business logic here
+         }
+     }
+     ```
+
+3. **Repository Layer**
+   - Handles data access
+   - Extends Spring Data MongoDB's `MongoRepository`
+   - Example:
+     ```kotlin
+     @Repository
+     interface UserRepository : MongoRepository<User, String> {
+         fun findByEmail(email: String): User?
+     }
+     ```
+
+### DTO Pattern
+- **Request DTOs**: For incoming API requests
+  - Validates input
+  - Matches API contract
+- **Response DTOs**: For API responses
+  - Controls what data is exposed
+  - Matches API contract
+- **Internal DTOs**: For service layer communication
+  - Matches domain model
+  - May contain additional metadata
+
 ## Data Models
 
 ### User
